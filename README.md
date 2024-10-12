@@ -27,8 +27,7 @@ then the executable app will in the folder ./build/bin
 - [ ] Support for height auto-adaptation
 - [ ] Support for file/folder dragging and dropping
 - [ ] More suitable folder comparison results
-- [ ] Result filtering
-- [ ] 
+- [x] Result filtering
 - [ ] Adjustable session configuration
 
 # TIP

@@ -15,13 +15,16 @@ const data = reactive({
   compareBtnText: "开始比对 ",
   old: "",
   new: "",
+  filterName: "",
   detail: {
     show: false,
     title: "",
     content: "",
     //content: "snil<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>bdfdsfsafsaf",
   },
-  compareObj: {}
+  compareObj: {},
+  filesChange: {},
+  filesChangeTmp: {}
 })
 
 data.prev = `var a1 = {
@@ -71,6 +74,25 @@ function selectNew() {
   })
 }
 
+function filterDirFiles() {
+	if (data.compareObj.FilesChange != undefined) {
+		if  (data.filterName == "") {
+			data.compareObj.FilesChange = data.filesChange
+		} else {
+			data.filesChangeTmp = {};
+			let name = data.filterName
+			name = name.toLowerCase()
+			for (let fileName in data.compareObj.FilesChange) {
+				if (fileName.toLowerCase().includes(data.filterName)) {
+					data.filesChangeTmp[fileName] = data.compareObj.FilesChange[fileName]
+				}
+			}
+			data.compareObj.FilesChange = data.filesChangeTmp
+		} 
+	}
+
+}
+
 function detailShow(key) {
   data.detail.show = true
   data.detail.title = key
@@ -115,13 +137,15 @@ function compare() {
       data.compareObj = json
       data.prev = json.Old
       data.current = json.New
+
+	  if (data.compareObj.FilesChange != undefined)  {
+		data.filesChange = data.compareObj.FilesChange 
+	  }
       /*
       console.log(json.Sli)
       for(let k in json.Sli) {
         console.log(k, json.Sli.k);
       }
-      */
-      /*
       console.log(json.CHANGE.length)
       console.log(json.DEL.length)
       console.log(json.NEW.length)
@@ -140,87 +164,29 @@ function compare() {
           <tr>
             <td colspan="2" style="text-align:left" class="align-middle">
               <button v-if="data.compareType" class="
-          min-w-32
-          h-10
-          border-1 
-          rounded-md
-          bg-gray-700
-          text-white
-          font-semibold
-          w-full
-          sm:w-auto 
-          hover:bg-gray-700 
-          hover:text-white
-          shadow 
-          focus:outline-none 
-          cursor-pointer
-          mr-5 
+          min-w-32 h-10 border-1 rounded-md bg-gray-700
+          text-white font-semibold w-full sm:w-auto hover:bg-gray-700 hover:text-white
+          shadow focus:outline-none cursor-pointer mr-5 
               ">比对文件夹</button>
 
               <button v-if="data.compareType == 0" class=" 
-          min-w-32
-          h-10
-          border-1 
-          rounded-md
-          text-gray-700
-          bg-gray-200 
-          w-full
-          sm:w-auto 
-          hover:bg-gray-700 
-          hover:text-white
-          font-semibold 
-          shadow 
-          focus:outline-none 
-          cursor-pointer
-          mr-5
+          min-w-32 h-10 border-1 rounded-md text-gray-700 bg-gray-200 w-full
+          sm:w-auto hover:bg-gray-500 hover:text-white active:bg-gray-700
+		  font-semibold shadow 
+          focus:outline-none cursor-pointer mr-5
           " @click="selectType(1)">比对文件夹</button>
 
               <button v-if="data.compareType" class=" 
-          min-w-32
-          mt-2
-          mb-2
-          h-10
-          rounded-md
-          w-full
-          sm:w-auto 
-          bg-gray-200 
-          text-gray-700
-          hover:bg-gray-700 
-          hover:text-white
-          font-semibold 
-          shadow 
-          focus:outline-none 
-          cursor-pointer
-          " @click="selectType(0)">比对文件</button>
+          min-w-32 mt-2 mb-2 h-10 rounded-md w-full sm:w-auto 
+		  bg-gray-200 text-gray-700 hover:bg-gray-500 hover:text-white active:bg-gray-700
+          font-semibold shadow focus:outline-none cursor-pointer
+          " @click="selectType(0)">比对文件1</button>
 
               <button v-if="!data.compareType" class=" 
-          min-w-32
-          mt-2
-          mb-2
-          h-10
-          rounded-md
-          w-full
-          sm:w-auto 
-          text-white
-          bg-gray-700 
-          hover:bg-gray-700 
-          hover:text-white
-          font-semibold 
-          shadow 
-          focus:outline-none 
-          cursor-pointer
+          min-w-32 mt-2 mb-2 h-10 rounded-md w-full sm:w-auto 
+          text-white bg-gray-700 hover:bg-gray-700 hover:text-white
+          font-semibold shadow focus:outline-none cursor-pointer
           " @click="selectType(0)">比对文件</button>
-              <!--
-              <div class="align-top md:align-top ">
-                <input type="radio" id="folder" value="true" v-model="data.picked" />
-                <label for="folder">&nbsp;比对文件夹</label>
-
-                &nbsp; &nbsp; &nbsp;
-
-                <input type="radio" id="files" value="false" v-model="data.picked" />
-                <label for="files"> &nbsp;比对文件</label>
-              </div>
-            -->
             </td>
           </tr>
           <tr>
@@ -231,24 +197,9 @@ function compare() {
             </td>
             <td class="w-1/12 text-right">
               <button class="
-          min-w-32
-          ml-4
-          mb-2
-          h-10
-          border-1 
-          rounded-md
-          text-gray-700
-          font-semibold
-          w-full
-          sm:w-auto 
-          bg-gray-200 
-          hover:bg-gray-700 
-          hover:text-white
-          font-semibold 
-          shadow 
-          focus:outline-none 
-          cursor-pointer
-          " @click="selectOld">
+          min-w-32 ml-4 mb-2 h-10 border-1 rounded-md w-full sm:w-auto 
+          text-gray-700 bg-gray-200 hover:bg-gray-500 hover:text-white active:bg-gray-700
+		  focus:outline-none font-semibold shadow cursor-pointer" @click="selectOld">
                 源文件
               </button>
             </td>
@@ -261,49 +212,27 @@ function compare() {
             </td>
             <td class="text-right">
               <button class=" 
-          min-w-32
-          mt-2
-          mb-2
-          h-10
-          border-1 
-          rounded-md
-          text-gray-700
-          font-semibold
-          w-full
-          sm:w-auto 
-          bg-gray-200 
-          hover:bg-gray-700 
-          hover:text-white
-          font-semibold 
-          shadow 
-          focus:outline-none 
-          cursor-pointer
+          min-w-32 mt-2 mb-2 h-10 border-1 rounded-md w-full sm:w-auto 
+		  text-gray-700 bg-gray-200 hover:bg-gray-500 hover:text-white active:bg-gray-500
+          focus:outline-none font-semibold shadow cursor-pointer
           " @click="selectNew">目标文件</button>
             </td>
           </tr>
 
           <tr>
-            <td colspan="1" class="text-right"></td>
+            <td colspan="1" class="text-right">
+              <input
+				placeholder="过滤文件名"
+				v-if="data.compareObj.Tpo && data.compareObj.Diff"
+                class="mt-1 mb-2 w-full h-10 border-2 hover:border-gray-700 focus:border-gray-700 rounded-md p-1.5 border-gray-300"
+                v-model="data.filterName" autocomplete="off" type="text"  @keyup="filterDirFiles"/>
+			</td>
             <td class="text-right">
-              <button class="
-            min-w-32
-          mt-2
-          mb-2
-          h-10
-          border-1 
-          rounded-md
-          text-gray-700
-          font-semibold
-          w-full
-          sm:w-auto 
-          bg-gray-200 
-          enabled:hover:bg-gray-700 
-          enabled:hover:text-white
-          font-semibold 
-          shadow 
-          focus:outline-none 
-          cursor-pointer
-          disabled:opacity-75
+              <button 
+			  class="
+            min-w-32 mt-1 mb-2 h-10 border-1 rounded-md w-full sm:w-auto 
+          text-gray-700 bg-gray-200 enabled:hover:bg-gray-500 enabled:hover:text-white enabled:active:bg-gray-700
+		  focus:outline-none font-semibold shadow cursor-pointer disabled:opacity-75
           " :disabled=data.compareDisabled @click="compare">{{ data.compareBtnText }}</button>
             </td>
           </tr>
@@ -431,7 +360,7 @@ function compare() {
     </div>
 
     <div v-if="data.detail.show">
-      <div class="z-40 absolute bg-white top-20 left-0 w-full h-full">
+      <div class="z-40 absolute bg-white top-20 left-0 w-full h-svh">
 		<div class="border-2 border-gray-300 rounded-md m-2" >
 			<Diff
 				mode="split"
@@ -440,30 +369,11 @@ function compare() {
 				:prev="data.detail.prev"
 				:current="data.detail.current"
 				input-delay="0"
-				virtual-scroll="{ height: 500, lineMinHeight: 24, delay: 100 }"
+		    	:virtual-scroll="{height:640, lineMinHeight: 24, delay: 100 }"
 			  />
 		</div>
-	  	<div v-html="data.detail.content" class="
-			invisible
-            space-x-0.5
-            m-2
-            p-2
-            border-2 
-            text-left	
-            text-wrap	
-            border-gray-500 
-            bg-white
-            rounded-md 
-            w-11/12
-            md:w-auto
-            h-5/6
-            min-h-content
-            overflow-scroll	
-            "></div>
       </div>
     </div>
-
-
   </main>
 </template>
 
